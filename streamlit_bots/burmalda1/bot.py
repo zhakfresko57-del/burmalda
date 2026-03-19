@@ -1,13 +1,13 @@
-import logging
+import telebot
 import random
-from telegram import Update
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 import os
+import time
 
 # Токен из переменных окружения
 TOKEN = os.environ.get("BOT_TOKEN")
 
-logging.basicConfig(level=logging.INFO)
+# Создаём бота
+bot = telebot.TeleBot(TOKEN)
 
 PHRASES = [
     "Здарова, мудак!",
@@ -19,19 +19,14 @@ PHRASES = [
     "Пошёл нахуй со своими вопросами!"
 ]
 
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_name = update.effective_user.first_name or "чувак"
-    await update.message.reply_text(f"🤬 Бурмалдина в облаке! Здарова, {user_name}!")
+@bot.message_handler(commands=['start'])
+def send_welcome(message):
+    user_name = message.from_user.first_name or "чувак"
+    bot.reply_to(message, f"🤬 Бурмалдина в облаке! Здарова, {user_name}!")
 
-async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text(random.choice(PHRASES))
+@bot.message_handler(func=lambda m: True)
+def echo_all(message):
+    bot.reply_to(message, random.choice(PHRASES))
 
-def main():
-    app = Application.builder().token(TOKEN).build()
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
-    print("🚀 Бот запущен!")
-    app.run_polling()
-
-if __name__ == "__main__":
-    main()
+print("🚀 Бот запущен!")
+bot.infinity_polling()
