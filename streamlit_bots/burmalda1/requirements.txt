@@ -1,2 +1,2 @@
-python-telegram-bot==13.7
-standard-imghdr
+pyTelegramBotAPI==4.10.0
+requests==2.31.0
